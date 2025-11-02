@@ -13,7 +13,7 @@ pipeline {
         stage('Docker Login') {
             steps {
                 echo "Logging in to DockerHub..."
-                bat 'docker login -u kollurichandrakala'
+                bat 'docker login -u kollurichandrakala -p Chandrakala@123'
             }
         }
 
