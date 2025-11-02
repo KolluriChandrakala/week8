@@ -1,29 +1,25 @@
 pipeline {
     agent any
-
     stages {
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
-                echo "Building Docker Image: kubernetesapp"
-                bat "docker build -t kubernetesapp ."
+                sh 'docker build -t registration-app .'
             }
         }
-
-        stage('Run') {
+        stage('Push to DockerHub') {
             steps {
-                echo "Running Docker Container from Image: kubernetesapp"
-                bat "docker rm -f mycontainer || exit 0"
-                bat "docker run -d -p 5000:5000 --name mycontainer kubernetesapp"
+                withCredentials([string(credentialsId: 'dockerhub-token', variable: 'DOCKERHUB_TOKEN')]) {
+                    sh 'echo $DOCKERHUB_TOKEN | docker login -u your_dockerhub_username --password-stdin'
+                    sh 'docker tag registration-app your_dockerhub_username/registration-app:latest'
+                    sh 'docker push your_dockerhub_username/registration-app:latest'
+                }
             }
         }
-    }
-
-    post {
-        success {
-            echo 'Pipeline completed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed. Please check the logs.'
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh 'kubectl apply -f kubernetes/deployment.yaml'
+                sh 'kubectl apply -f kubernetes/service.yaml'
+            }
         }
     }
 }
