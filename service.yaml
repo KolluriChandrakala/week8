@@ -1,14 +1,15 @@
-# service.yaml
 apiVersion: v1
 kind: Service
 metadata:
   name: kubeapp-service
+  labels:
+    app: kubeapp
 spec:
+  type: LoadBalancer
   selector:
     app: kubeapp
   ports:
     - protocol: TCP
       port: 5000
       targetPort: 5000
-  type: LoadBalancer
-
+      nodePort: 30105

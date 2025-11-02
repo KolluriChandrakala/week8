@@ -1,25 +1,44 @@
 pipeline {
     agent any
+
     stages {
+
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t registration-app .'
+                echo "Building Docker Image..."
+                bat "docker build -t kollurichandrakala/kubesample:version1 ."
             }
         }
-        stage('Push to DockerHub') {
+
+        stage('Docker Login') {
             steps {
-                withCredentials([string(credentialsId: 'dockerhub-token', variable: 'DOCKERHUB_TOKEN')]) {
-                    sh 'echo $DOCKERHUB_TOKEN | docker login -u your_dockerhub_username --password-stdin'
-                    sh 'docker tag registration-app your_dockerhub_username/registration-app:latest'
-                    sh 'docker push your_dockerhub_username/registration-app:latest'
-                }
+                echo "Logging in to DockerHub..."
+                bat 'docker login -u kollurichandrakala -p Chandrakala@123'
             }
         }
+
+        stage('Push Docker Image to DockerHub') {
+            steps {
+                echo "Pushing Docker Image to DockerHub..."
+                bat "docker push kollurichandrakala/kubesample:version1"
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             steps {
-                sh 'kubectl apply -f kubernetes/deployment.yaml'
-                sh 'kubectl apply -f kubernetes/service.yaml'
+                echo "Deploying to Kubernetes..."
+                bat 'kubectl apply -f deployment.yaml'
+                bat 'kubectl apply -f service.yaml'
             }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Build and Deployment Successful!'
+        }
+        failure {
+            echo '❌ Build or Deployment Failed!'
         }
     }
 }

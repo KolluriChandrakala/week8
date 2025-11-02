@@ -5,7 +5,7 @@ metadata:
   labels:
     app: kubeapp
 spec:
-  replicas: 4
+  replicas: 3
   selector:
     matchLabels:
       app: kubeapp
@@ -15,7 +15,15 @@ spec:
         app: kubeapp
     spec:
       containers:
-      - name: kubeapp
-        image: kollurichandrakala/kubesample:version1
-        ports:
-        - containerPort: 5000
+        - name: kubeapp
+          image: kollurichandrakala/kubesample:version1
+          ports:
+            - containerPort: 5000
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
